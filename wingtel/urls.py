@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import debug_toolbar
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.urls import path
@@ -23,7 +24,7 @@ from wingtel.att_subscriptions.views import ATTSubscriptionViewSet
 from wingtel.plans.views import PlanViewSet
 from wingtel.purchases.views import PurchaseViewSet
 from wingtel.sprint_subscriptions.views import SprintSubscriptionViewSet
-from wingtel.usage.views import FillModel
+from wingtel.usage.views import FillModel, AggregateView
 
 router = routers.DefaultRouter()
 
@@ -35,5 +36,7 @@ router.register(r'sprint_subscriptions', SprintSubscriptionViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^api/', include((router.urls, 'api'), namespace='api')),
-    url(r'^fill/', FillModel.as_view()),
+    path('fill/', FillModel.as_view()),
+    path('aggregate/', AggregateView.as_view(), name='usage-aggregate'),
+    path('__debug__/', include(debug_toolbar.urls)),
 ]

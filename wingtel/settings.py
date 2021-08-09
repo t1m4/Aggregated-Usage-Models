@@ -26,7 +26,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,7 +40,8 @@ INSTALLED_APPS = [
     'wingtel.plans.apps.PlansConfig',
     'wingtel.purchases.apps.PurchasesConfig',
     'wingtel.sprint_subscriptions.apps.SprintSubscriptionsConfig',
-    'wingtel.usage.apps.UsageConfig'
+    'wingtel.usage.apps.UsageConfig',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -52,8 +52,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
+INTERNAL_IPS = [
+    # ...
+    '127.0.0.1',
+    # ...
+]
 ROOT_URLCONF = 'wingtel.urls'
 
 TEMPLATES = [
@@ -74,7 +80,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'wingtel.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -89,7 +94,6 @@ DATABASES = {
         'CONN_MAX_AGE': 3600,
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -109,7 +113,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -122,7 +125,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
