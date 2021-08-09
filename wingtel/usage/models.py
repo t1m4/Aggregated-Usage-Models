@@ -1,4 +1,5 @@
 from django.db import models
+from model_utils import Choices
 
 from wingtel.att_subscriptions.models import ATTSubscription
 from wingtel.sprint_subscriptions.models import SprintSubscription
@@ -20,3 +21,16 @@ class VoiceUsageRecord(models.Model):
     price = models.DecimalField(decimal_places=2, max_digits=5, default=0)
     usage_date = models.DateTimeField(null=False)
     seconds_used = models.IntegerField(null=False)
+
+
+class BothUsageRecord(models.Model):
+    USAGE_TYPES = Choices(
+        ('data', 'DataUsage'),
+        ('voice', 'VoiceUsage'),
+    )
+
+    subscription_id = models.IntegerField()
+    type_of_usage = models.CharField(max_length=100, choices=USAGE_TYPES)
+    price = models.DecimalField(decimal_places=2, max_digits=5, default=0)
+    usage_date = models.DateTimeField(null=False)
+    used = models.IntegerField(null=False)

@@ -23,6 +23,7 @@ from wingtel.att_subscriptions.views import ATTSubscriptionViewSet
 from wingtel.plans.views import PlanViewSet
 from wingtel.purchases.views import PurchaseViewSet
 from wingtel.sprint_subscriptions.views import SprintSubscriptionViewSet
+from wingtel.usage.views import FillModel
 
 router = routers.DefaultRouter()
 
@@ -34,4 +35,5 @@ router.register(r'sprint_subscriptions', SprintSubscriptionViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^api/', include((router.urls, 'api'), namespace='api')),
+    url(r'^fill/', FillModel.as_view()),
 ]
