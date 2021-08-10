@@ -1,5 +1,7 @@
 # Create your views here.
-from django.db.models import Count, DateField, Sum, Q, F
+from datetime import datetime
+
+from django.db.models import Count, DateField, Sum
 from django.db.models.functions import TruncDay
 from rest_framework import status
 from rest_framework.response import Response
@@ -20,10 +22,8 @@ class AggregateDataView(APIView):
     models_field = {'data': {'used': 'kilobytes_used'}, 'voice': {'used': 'seconds_used'}}
 
     def get(self, request, *args, **kwargs):
-        type = request.GET.get('type')
+        type = request.GET.get('type', 'data')
         model = self.models.get(type)
-        if not model:
-            return Response(status=status.HTTP_404_NOT_FOUND)
         used_field = self.models_field[type]['used']
         result = model.objects.values(
             'att_subscription_id',
@@ -83,4 +83,43 @@ class SubcsriptionExceededPrice(APIView):
         #     'price_exceeded',
         # )
 
+        return Response(result)
+
+
+class UsageMetrics(APIView):
+    type_of_usage = ['data', 'voice']
+
+    def get(self, request, id, *args, **kwargs):
+        date_from = request.GET.get('from')
+        date_to = request.GET.get('to')
+        type = request.GET.get('type')
+        if not date_from or not date_to or type not in self.type_of_usage:
+            return Response("You must provide from, to and type parameters", status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            date_format = "%Y-%m-%d"
+            date_from = datetime.strptime(date_from, date_format).date()
+            date_to = datetime.strptime(date_to, date_format).date()
+        except ValueError:
+            return Response("Use date format - {}".format(date_format), status=status.HTTP_404_NOT_FOUND)
+
+        query = BothUsageRecord.objects.filter(
+            subscription_id=id,
+            type_of_usage=type,
+            usage_date__gte=date_from,
+            usage_date__lte=date_to
+        ).values(
+            'subscription_id'
+        ).annotate(
+            total_price=Sum('price'),
+            total_used=Sum('used'),
+        ).values(
+            'subscription_id',
+            'total_price',
+            'total_used'
+        )
+
+        result = []
+        for row in query:
+            result = row.items()
         return Response(result)
