@@ -1,5 +1,5 @@
 # Create your views here.
-from django.db.models import Count, DateField, Sum
+from django.db.models import Count, DateField, Sum, Q, F
 from django.db.models.functions import TruncDay
 from rest_framework import status
 from rest_framework.response import Response
@@ -33,7 +33,6 @@ class AggregateDataView(APIView):
             total_price=Sum('price'),
             total_used=Sum(used_field),
         ).order_by('day')
-        print(len(result))
 
         # self.create_bulk(result, type)
         return Response(result)
@@ -47,3 +46,41 @@ class AggregateDataView(APIView):
             data_objects.append(obj)
 
         BothUsageRecord.objects.bulk_create(data_objects)
+
+
+class SubcsriptionExceededPrice(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            price_limit = int(request.GET.get('price_limit'))
+        except ValueError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        if not price_limit:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # for usage group by id
+        result = BothUsageRecord.objects.values(
+            'type_of_usage',
+            'subscription_id'
+        ).annotate(
+            total_price=Sum('price'),
+            price_exceeded=Sum('price') - price_limit
+        ).filter(
+            total_price__gt=price_limit
+        ).values(
+            'type_of_usage',
+            'subscription_id',
+            'price_exceeded',
+        )
+
+        # for each usage
+        # result = BothUsageRecord.objects.filter(
+        #     price__gt=price_limit
+        # ).annotate(
+        #     price_exceeded=Sum('price') - price_limit
+        # ).values(
+        #     'type_of_usage',
+        #     'subscription_id',
+        #     'price_exceeded',
+        # )
+
+        return Response(result)

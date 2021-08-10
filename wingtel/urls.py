@@ -24,7 +24,7 @@ from wingtel.att_subscriptions.views import ATTSubscriptionViewSet
 from wingtel.plans.views import PlanViewSet
 from wingtel.purchases.views import PurchaseViewSet
 from wingtel.sprint_subscriptions.views import SprintSubscriptionViewSet
-from wingtel.usage.views import FillModel, AggregateDataView
+from wingtel.usage.views import FillModel, AggregateDataView, SubcsriptionExceededPrice
 
 router = routers.DefaultRouter()
 
@@ -36,7 +36,6 @@ router.register(r'sprint_subscriptions', SprintSubscriptionViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^api/', include((router.urls, 'api'), namespace='api')),
-    path('fill/', FillModel.as_view()),
-    path('aggregate/', AggregateDataView.as_view(), name='usage-aggregate'),
+    path('usage/', include('wingtel.usage.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
 ]
