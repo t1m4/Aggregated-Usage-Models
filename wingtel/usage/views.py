@@ -92,7 +92,7 @@ class SubscriptionExceededPrice(APIView):
     def get(self, request, *args, **kwargs):
         try:
             price_limit = int(request.GET.get('price_limit'))
-        except ValueError:
+        except (ValueError, TypeError):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         # check sub_type
