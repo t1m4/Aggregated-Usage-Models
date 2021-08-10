@@ -35,7 +35,7 @@ class AggregateDataView(APIView):
             total_price=Sum('price'),
             total_used=Sum(used_field),
         ).order_by('day')
-        print(len(result))
+
         self.create_bulk(result, type)
         return Response(result)
 
@@ -56,16 +56,23 @@ class AggregateDataView(APIView):
 
 
 class SubcsriptionExceededPrice(APIView):
+    types_of_subscription = BothUsageRecord.SUBSCRIPTION_TYPE
+
     def get(self, request, *args, **kwargs):
         try:
             price_limit = int(request.GET.get('price_limit'))
         except ValueError:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        if not price_limit:
+
+        # check sub_type
+        sub_type = request.GET.get('sub_type', self.types_of_subscription.att)
+        sub_type_exist = BothUsageRecord.check_sub_type(sub_type)
+
+        if not price_limit or not sub_type_exist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         # for usage group by id
-        result = BothUsageRecord.objects.values(
+        result = BothUsageRecord.objects.filter(type_of_subscription=sub_type).values(
             'type_of_usage',
             'subscription_id'
         ).annotate(
@@ -75,18 +82,20 @@ class SubcsriptionExceededPrice(APIView):
             total_price__gt=price_limit
         ).values(
             'type_of_usage',
+            'type_of_subscription',
             'subscription_id',
             'price_exceeded',
         )
 
         # for each usage
         # result = BothUsageRecord.objects.filter(
-        #     price__gt=price_limit
+        #     price__gt=price_limit, type_of_subscription=sub_type
         # ).annotate(
         #     price_exceeded=Sum('price') - price_limit
         # ).values(
         #     'type_of_usage',
         #     'subscription_id',
+        #     'type_of_subscription',
         #     'price_exceeded',
         # )
 

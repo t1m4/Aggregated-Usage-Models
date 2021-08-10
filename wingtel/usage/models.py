@@ -40,3 +40,12 @@ class BothUsageRecord(models.Model):
     price = models.DecimalField(decimal_places=2, max_digits=7, default=0)
     usage_date = models.DateField(null=False)
     used = models.IntegerField(null=False)
+
+    @classmethod
+    def check_sub_type(cls, type):
+        sub_type_exist = False
+        for subscription_type in cls.SUBSCRIPTION_TYPE:
+            if type == subscription_type[0]:
+                sub_type_exist = True
+                break
+        return sub_type_exist
