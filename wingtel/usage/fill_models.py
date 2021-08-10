@@ -42,8 +42,6 @@ def fill_models():
                                    seconds_used=i['fields']['seconds_used'], usage_date=usage_date)
             voice_objects.append(obj)
         k += 1
-        if k % 1000 == 0:
-            print(k)
     DataUsageRecord.objects.bulk_create(data_objects)
     VoiceUsageRecord.objects.bulk_create(voice_objects)
 

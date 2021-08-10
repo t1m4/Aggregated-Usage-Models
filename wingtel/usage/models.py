@@ -43,6 +43,9 @@ class BothUsageRecord(models.Model):
 
     @classmethod
     def check_sub_type(cls, type):
+        """
+        Check subscription_type
+        """
         sub_type_exist = False
         for subscription_type in cls.SUBSCRIPTION_TYPE:
             if type == subscription_type[0]:

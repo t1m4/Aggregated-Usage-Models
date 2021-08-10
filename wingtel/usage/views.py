@@ -34,12 +34,15 @@ class AggregateDataView(APIView):
             sprint_count=Count('sprint_subscription_id'),
             total_price=Sum('price'),
             total_used=Sum(used_field),
-        ).order_by('day')
+        )#.order_by('day')
 
-        self.create_bulk(result, type)
+        # self.create_bulk(result, type)
         return Response(result)
 
     def create_bulk(self, queryset, type):
+        """
+        Create BothUsageRecord using .bulk_create(). Divided data by subscription_id
+        """
         data_objects = []
         for row in queryset:
             if row.get('att_subscription_id'):
@@ -56,7 +59,6 @@ class AggregateDataView(APIView):
 
 
 class SubcsriptionExceededPrice(APIView):
-    types_of_subscription = BothUsageRecord.SUBSCRIPTION_TYPE
 
     def get(self, request, *args, **kwargs):
         try:
@@ -65,7 +67,7 @@ class SubcsriptionExceededPrice(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         # check sub_type
-        sub_type = request.GET.get('sub_type', self.types_of_subscription.att)
+        sub_type = request.GET.get('sub_type')
         sub_type_exist = BothUsageRecord.check_sub_type(sub_type)
 
         if not price_limit or not sub_type_exist:
@@ -108,9 +110,12 @@ class UsageMetrics(APIView):
     def get(self, request, id, *args, **kwargs):
         date_from = request.GET.get('from')
         date_to = request.GET.get('to')
-        type = request.GET.get('type')
-        if not date_from or not date_to or type not in self.type_of_usage:
-            return Response("You must provide from, to and type parameters", status=status.HTTP_404_NOT_FOUND)
+        usage_type = request.GET.get('usage_type')
+        sub_type = request.GET.get('sub_type')
+        sub_type_exist = BothUsageRecord.check_sub_type(sub_type)
+
+        if not date_from or not date_to or usage_type not in self.type_of_usage or not sub_type_exist:
+            return Response("You must provide from, to sub_type and usage_type parameters", status=status.HTTP_404_NOT_FOUND)
 
         try:
             date_format = "%Y-%m-%d"
@@ -119,9 +124,11 @@ class UsageMetrics(APIView):
         except ValueError:
             return Response("Use date format - {}".format(date_format), status=status.HTTP_404_NOT_FOUND)
 
+        # Group by subscription_id, aggregate price and used
         query = BothUsageRecord.objects.filter(
             subscription_id=id,
-            type_of_usage=type,
+            type_of_usage=usage_type,
+            type_of_subscription=sub_type,
             usage_date__gte=date_from,
             usage_date__lte=date_to
         ).values(
@@ -135,7 +142,8 @@ class UsageMetrics(APIView):
             'total_used'
         )
 
-        result = []
-        for row in query:
-            result = row.items()
+        if len(query) == 0:
+            result = []
+        else:
+            result = query[0].items()
         return Response(result)
