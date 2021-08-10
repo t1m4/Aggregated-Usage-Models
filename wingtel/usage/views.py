@@ -27,22 +27,29 @@ class AggregateDataView(APIView):
         used_field = self.models_field[type]['used']
         result = model.objects.values(
             'att_subscription_id',
+            'sprint_subscription_id',
             day=TruncDay('usage_date', output_field=DateField()),
         ).annotate(
             att_count=Count('att_subscription_id'),
+            sprint_count=Count('sprint_subscription_id'),
             total_price=Sum('price'),
             total_used=Sum(used_field),
         ).order_by('day')
-
-        # self.create_bulk(result, type)
+        print(len(result))
+        self.create_bulk(result, type)
         return Response(result)
 
     def create_bulk(self, queryset, type):
         data_objects = []
         for row in queryset:
-            obj = BothUsageRecord(type_of_usage=type, subscription_id=row['att_subscription_id'],
-                                  price=row['total_price'], usage_date=row['day'],
-                                  used=row['total_used'])
+            if row.get('att_subscription_id'):
+                obj = BothUsageRecord(type_of_usage=type, subscription_id=row['att_subscription_id'],
+                                      price=row['total_price'], usage_date=row['day'],
+                                      used=row['total_used'], type_of_subscription='att')
+            else:
+                obj = BothUsageRecord(type_of_usage=type, subscription_id=row['sprint_subscription_id'],
+                                      price=row['total_price'], usage_date=row['day'],
+                                      used=row['total_used'], type_of_subscription='sprint')
             data_objects.append(obj)
 
         BothUsageRecord.objects.bulk_create(data_objects)
