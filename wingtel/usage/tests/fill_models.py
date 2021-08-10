@@ -19,7 +19,7 @@ def fill_models():
     """
     Create objects from fixtures.json
     """
-    data = read_file(BASE_DIR + '/wingtel/usage/fixtures.json')
+    data = read_file(BASE_DIR + '/wingtel/usage/tests/fixtures.json')
 
     data_objects = []
     voice_objects = []
@@ -45,6 +45,17 @@ def fill_models():
     DataUsageRecord.objects.bulk_create(data_objects)
     VoiceUsageRecord.objects.bulk_create(voice_objects)
 
+def create_subscriptions(user, count: int=4):
+    att_objects = []
+    sprint_objects = []
+    for i in range(count):
+        # att_objects.append(ATTSubscription(device_id=i, user=user))
+        ATTSubscription.objects.create(device_id=i, user=user)
+        # sprint_objects.append(SprintSubscription(device_id=i, user=user))
+        SprintSubscription.objects.create(device_id=i, user=user)
 
-if __name__ == '__main__':
-    read_file('fixtures.json')
+    # ATTSubscription.objects.bulk_create(att_objects)
+    # SprintSubscription.objects.bulk_create(sprint_objects)
+
+
+

@@ -17,14 +17,12 @@ import debug_toolbar
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.urls import path
-
 from rest_framework import routers
 
 from wingtel.att_subscriptions.views import ATTSubscriptionViewSet
 from wingtel.plans.views import PlanViewSet
 from wingtel.purchases.views import PurchaseViewSet
 from wingtel.sprint_subscriptions.views import SprintSubscriptionViewSet
-from wingtel.usage.views import FillModel, AggregateDataView, SubcsriptionExceededPrice
 
 router = routers.DefaultRouter()
 

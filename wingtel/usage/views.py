@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from wingtel.usage.fill_models import fill_models
+from wingtel.usage.tests.fill_models import fill_models
 from wingtel.usage.models import DataUsageRecord, BothUsageRecord, VoiceUsageRecord
 
 
@@ -36,7 +36,7 @@ class AggregateDataView(APIView):
             total_used=Sum(used_field),
         )#.order_by('day')
 
-        # self.create_bulk(result, type)
+        self.create_bulk(result, type)
         return Response(result)
 
     def create_bulk(self, queryset, type):
@@ -58,7 +58,7 @@ class AggregateDataView(APIView):
         BothUsageRecord.objects.bulk_create(data_objects)
 
 
-class SubcsriptionExceededPrice(APIView):
+class SubscriptionExceededPrice(APIView):
 
     def get(self, request, *args, **kwargs):
         try:
