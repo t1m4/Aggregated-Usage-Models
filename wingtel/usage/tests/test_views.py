@@ -7,47 +7,7 @@ from wingtel.usage.models import BothUsageRecord
 from wingtel.usage.tests.fill_models import fill_models, create_subscriptions
 
 
-class TestAggregateDataView(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-        """
-        setup data for whole class
-        """
-        cls.aggregate_url = reverse('usage-aggregate')
-        user = User.objects.create(username='test', password='test')
-        create_subscriptions(user)
-        fill_models()
-
-    def setUp(self):
-        pass
-
-    def test_can_aggregate_data(self):
-        response = self.client.get(self.aggregate_url, {'type': 'data'})
-        assert len(response.json()) == BothUsageRecord.objects.all().count()
-
-    def test_can_aggregate_without_type(self):
-        response = self.client.get(self.aggregate_url)
-        assert len(response.json()) == BothUsageRecord.objects.all().count()
-
-    def test_can_aggregate_with_voice_type(self):
-        response = self.client.get(self.aggregate_url, {'type': 'voice'})
-        assert len(response.json()) == BothUsageRecord.objects.all().count()
-
-    def test_cannot_aggregate_with_invalid_date(self):
-        response = self.client.get(self.aggregate_url, {'type': 'data', 'from': '2019-13-1', 'to': '2019-1-2'})
-        assert response.status_code == 404
-
-    def test_can_aggregate_with_date_from_and_to(self):
-        response = self.client.get(self.aggregate_url, {'type': 'data', 'from': '2019-1-1', 'to': '2019-1-2'})
-        first_len = len(response.json())
-        assert first_len == BothUsageRecord.objects.all().count()
-
-        response = self.client.get(self.aggregate_url, {'type': 'data', 'from': '2019-1-2', 'to': '2020-1-2'})
-        second_len = len(response.json())
-        assert first_len + second_len == BothUsageRecord.objects.all().count()
-
-
+# TODO Test it using create Voice
 class TestSubscriptionExceededPrice(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -105,7 +65,7 @@ class TestSubscriptionExceededPrice(TestCase):
         assert response.status_code == 200
         assert len(response.json()) == 8
 
-
+# TODO Test it using create Voice/Data
 class TestUsageMetrics(TestCase):
     @classmethod
     def setUpTestData(cls):

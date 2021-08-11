@@ -55,13 +55,15 @@ class VoiceUsageRecord(models.Model):
         record_type = 'voice'
         # check exist entry with this params
         if self.att_subscription_id:
-            record = get_object_or_none(BothUsageRecord, subscription_id=self.att_subscription_id.id,
-                                        usage_date=self.usage_date.date(), type_of_usage=record_type,
-                                        type_of_subscription='att')
+            subscription_id = self.att_subscription_id.id
+            type_of_subscription = 'att'
         else:
-            record = get_object_or_none(BothUsageRecord, subscription_id=self.sprint_subscription_id.id,
-                                        usage_date=self.usage_date.date(), type_of_usage=record_type,
-                                        type_of_subscription='sprint')
+            subscription_id = self.sprint_subscription_id.id
+            type_of_subscription = 'sprint'
+        record = get_object_or_none(BothUsageRecord, subscription_id=subscription_id,
+                                    usage_date=self.usage_date.date(), type_of_usage=record_type,
+                                    type_of_subscription=type_of_subscription)
+
         if record:
             self.__update_aggregate_obj(record)
         else:
