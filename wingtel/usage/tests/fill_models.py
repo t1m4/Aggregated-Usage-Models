@@ -15,7 +15,7 @@ def read_file(filename):
     return result
 
 
-def fill_models():
+def fill_models(count: int = 0):
     """
     Create objects from fixtures.json
     """
@@ -23,14 +23,18 @@ def fill_models():
 
     data_objects = []
     voice_objects = []
+    # In different tests class ATTSubscription pk will be increase automatically
+    multiply = count * 4
 
     k = 0
     for i in data:
         # use each time different subscription
         if k % 2 == 0:
-            subscription = {'att_subscription_id': ATTSubscription.objects.get(pk=i['fields']['subscription'])}
+            subscription = {
+                'att_subscription_id': ATTSubscription.objects.get(pk=i['fields']['subscription'] + multiply)}
         else:
-            subscription = {'sprint_subscription_id': SprintSubscription.objects.get(pk=i['fields']['subscription'])}
+            subscription = {
+                'sprint_subscription_id': SprintSubscription.objects.get(pk=i['fields']['subscription'] + multiply)}
         usage_date = make_aware(datetime.strptime(i['fields']['usage_date'], "%Y-%m-%dT%H:%M:%S.%fZ"))
 
         if i.get('model') == 'usage.datausagerecord':
@@ -45,17 +49,13 @@ def fill_models():
     DataUsageRecord.objects.bulk_create(data_objects)
     VoiceUsageRecord.objects.bulk_create(voice_objects)
 
-def create_subscriptions(user, count: int=4):
+
+def create_subscriptions(user, count: int = 4):
     att_objects = []
     sprint_objects = []
     for i in range(count):
-        # att_objects.append(ATTSubscription(device_id=i, user=user))
-        ATTSubscription.objects.create(device_id=i, user=user)
-        # sprint_objects.append(SprintSubscription(device_id=i, user=user))
-        SprintSubscription.objects.create(device_id=i, user=user)
+        att_objects.append(ATTSubscription(device_id=i, user=user))
+        sprint_objects.append(SprintSubscription(device_id=i, user=user))
 
-    # ATTSubscription.objects.bulk_create(att_objects)
-    # SprintSubscription.objects.bulk_create(sprint_objects)
-
-
-
+    ATTSubscription.objects.bulk_create(att_objects)
+    SprintSubscription.objects.bulk_create(sprint_objects)

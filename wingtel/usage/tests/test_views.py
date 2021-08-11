@@ -3,6 +3,7 @@ from django.test import TestCase
 # Create your tests here.
 from django.urls import reverse
 
+from wingtel.att_subscriptions.models import ATTSubscription
 from wingtel.usage.models import BothUsageRecord
 from wingtel.usage.tests.fill_models import fill_models, create_subscriptions
 
@@ -33,7 +34,18 @@ class TestAggregateDataView(TestCase):
         response = self.client.get(self.aggregate_url, {'type': 'voice'})
         assert len(response.json()) == BothUsageRecord.objects.all().count()
 
-    # TODO add tests with date_from and date_to
+    def test_cannot_aggregate_with_invalid_date(self):
+        response = self.client.get(self.aggregate_url, {'type': 'data', 'from': '2019-13-1', 'to': '2019-1-2'})
+        assert response.status_code == 404
+
+    def test_can_aggregate_with_date_from_and_to(self):
+        response = self.client.get(self.aggregate_url, {'type': 'data', 'from': '2019-1-1', 'to': '2019-1-2'})
+        first_len = len(response.json())
+        assert first_len == BothUsageRecord.objects.all().count()
+
+        response = self.client.get(self.aggregate_url, {'type': 'data', 'from': '2019-1-2', 'to': '2020-1-2'})
+        second_len = len(response.json())
+        assert first_len + second_len == BothUsageRecord.objects.all().count()
 
 class TestSubscriptionExceededPrice(TestCase):
     @classmethod
@@ -46,7 +58,7 @@ class TestSubscriptionExceededPrice(TestCase):
         cls.params = {'price_limit': 100000, 'sub_type': 'att'}
         user = User.objects.create(username='test', password='test')
         create_subscriptions(user)
-        fill_models()
+        fill_models(count=1)
 
     def setUp(self):
         self.client.get(self.aggregate_url, {'type': 'data'})
