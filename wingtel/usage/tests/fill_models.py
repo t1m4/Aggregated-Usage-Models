@@ -51,6 +51,9 @@ def fill_models(count: int = 0):
 
 
 def create_subscriptions(user, count: int = 4):
+    """
+    Create each type subscription for user
+    """
     att_objects = []
     sprint_objects = []
     for i in range(count):

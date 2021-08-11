@@ -9,16 +9,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from wingtel.usage.models import DataUsageRecord, BothUsageRecord, VoiceUsageRecord
-from wingtel.usage.tests.fill_models import fill_models
-
-
-class FillModel(APIView):
-    def get(self, request, *args, **kwargs):
-        fill_models()
-        return Response('ok')
 
 
 class AggregateDataView(APIView):
+    """
+    Aggregate Data by given usage type and date interval. If date interval not given, aggregate all data.
+    """
     models = {'data': DataUsageRecord, 'voice': VoiceUsageRecord}
     models_field = {'data': {'used': 'kilobytes_used'}, 'voice': {'used': 'seconds_used'}}
 
@@ -27,8 +23,8 @@ class AggregateDataView(APIView):
         date_to = request.GET.get('to')
 
         if date_from and date_to:
+            date_format = "%Y-%m-%d"
             try:
-                date_format = "%Y-%m-%d"
                 date_from = datetime.strptime(date_from, date_format)
                 date_to = datetime.strptime(date_to, date_format)
             except ValueError:
@@ -125,36 +121,25 @@ class SubscriptionExceededPrice(APIView):
             'price_exceeded',
         )
 
-        # for each usage
-        # result = BothUsageRecord.objects.filter(
-        #     price__gt=price_limit, type_of_subscription=sub_type
-        # ).annotate(
-        #     price_exceeded=Sum('price') - price_limit
-        # ).values(
-        #     'type_of_usage',
-        #     'subscription_id',
-        #     'type_of_subscription',
-        #     'price_exceeded',
-        # )
         return result
 
 
 class UsageMetrics(APIView):
-    type_of_usage = ['data', 'voice']
 
     def get(self, request, id, *args, **kwargs):
         date_from = request.GET.get('from')
         date_to = request.GET.get('to')
         usage_type = request.GET.get('usage_type')
+        usage_type_exist = BothUsageRecord.check_usage_type(usage_type)
         sub_type = request.GET.get('sub_type')
         sub_type_exist = BothUsageRecord.check_sub_type(sub_type)
 
-        if not date_from or not date_to or usage_type not in self.type_of_usage or not sub_type_exist:
+        if not date_from or not date_to or not usage_type_exist or not sub_type_exist:
             return Response("You must provide from, to sub_type(att, sprint) and usage_type parameters",
                             status=status.HTTP_404_NOT_FOUND)
 
+        date_format = "%Y-%m-%d"
         try:
-            date_format = "%Y-%m-%d"
             date_from = datetime.strptime(date_from, date_format).date()
             date_to = datetime.strptime(date_to, date_format).date()
         except ValueError:
