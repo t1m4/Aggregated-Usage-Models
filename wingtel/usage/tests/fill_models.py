@@ -28,6 +28,10 @@ def fill_models(count: int = 0):
 
     k = 0
     for i in data:
+        if k > 100 and k < 2000 or k > 2100 and k < 4000:
+            k += 1
+            continue
+
         # use each time different subscription
         if k % 2 == 0:
             subscription = {
@@ -38,16 +42,14 @@ def fill_models(count: int = 0):
         usage_date = make_aware(datetime.strptime(i['fields']['usage_date'], "%Y-%m-%dT%H:%M:%S.%fZ"))
 
         if i.get('model') == 'usage.datausagerecord':
-            obj = DataUsageRecord(**subscription, price=float(i['fields']['price']),
-                                  kilobytes_used=i['fields']['kilobytes_used'], usage_date=usage_date)
+            obj = DataUsageRecord.objects.create(**subscription, price=int(float(i['fields']['price'])),
+                                                 kilobytes_used=i['fields']['kilobytes_used'], usage_date=usage_date)
             data_objects.append(obj)
         else:
-            obj = VoiceUsageRecord(**subscription, price=float(i['fields']['price']),
-                                   seconds_used=i['fields']['seconds_used'], usage_date=usage_date)
+            obj = VoiceUsageRecord.objects.create(**subscription, price=int(float(i['fields']['price'])),
+                                                  seconds_used=i['fields']['seconds_used'], usage_date=usage_date)
             voice_objects.append(obj)
         k += 1
-    DataUsageRecord.objects.bulk_create(data_objects)
-    VoiceUsageRecord.objects.bulk_create(voice_objects)
 
 
 def create_subscriptions(user, count: int = 4):
