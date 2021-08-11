@@ -118,27 +118,3 @@ class BothUsageRecord(models.Model):
     used = models.IntegerField(null=False)
 
     objects = BothUsageRecordManager()
-
-    @classmethod
-    def check_sub_type(cls, type):
-        """
-        Check subscription_type
-        """
-        sub_type_exist = False
-        for subscription_type in cls.SUBSCRIPTION_TYPE:
-            if type == subscription_type[0]:
-                sub_type_exist = True
-                break
-        return sub_type_exist
-
-    @classmethod
-    def check_usage_type(cls, type):
-        """
-        Check subscription_type
-        """
-        usage_type_exist = False
-        for usage_type in cls.USAGE_TYPES:
-            if type == usage_type[0]:
-                usage_type_exist = True
-                break
-        return usage_type_exist
