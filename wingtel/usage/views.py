@@ -1,112 +1,37 @@
 # Create your views here.
 from datetime import datetime
 
-from django.db.models import Count, DateField, Sum
+import django_filters
+from django.db.models import Count, DateField, Sum, QuerySet
 from django.db.models.functions import TruncDay
 from django.utils.timezone import make_aware
-from rest_framework import status
+from rest_framework import status, generics
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from wingtel.usage.models import DataUsageRecord, BothUsageRecord, VoiceUsageRecord
+from wingtel.usage.serializers import ExceededPriceSerializer
 
 
-class AggregateDataView(APIView):
-    """
-    Aggregate Data by given usage type and date interval. If date interval not given, aggregate all data.
-    """
-    models = {'data': DataUsageRecord, 'voice': VoiceUsageRecord}
-    models_field = {'data': {'used': 'kilobytes_used'}, 'voice': {'used': 'seconds_used'}}
+class SubscriptionExceededPrice(generics.ListAPIView):
+    serializer_class = ExceededPriceSerializer
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filterset_fields = ['subscription_id', 'type_of_usage', 'type_of_subscription']
 
-    def get(self, request, *args, **kwargs):
-        date_from = request.GET.get('from')
-        date_to = request.GET.get('to')
-
-        if date_from and date_to:
-            date_format = "%Y-%m-%d"
-            try:
-                date_from = datetime.strptime(date_from, date_format)
-                date_to = datetime.strptime(date_to, date_format)
-            except ValueError:
-                return Response("Use date format - {}".format(date_format), status=status.HTTP_404_NOT_FOUND)
-
-        type = request.GET.get('type', 'data')
-        result = self.aggregate(type, date_from, date_to)
-
-        self.create_bulk(result, type)
-        return Response(result)
-
-    def aggregate(self, type: str, date_from, date_to):
-        """
-        Filter Records by given date. Group by subscription_ids and day. Calculate total price and used.
-        """
-        model = self.models.get(type)
-        used_field = self.models_field[type]['used']
-
-        # Can aggregate data from date interval. For example from 2019-01-01 to 2019-01-08
-        if date_from and date_to:
-            date_filter_result = model.objects.filter(
-                usage_date__gte=make_aware(date_from),
-                usage_date__lte=make_aware(date_to)
-            )
-        else:
-            date_filter_result = model.objects.filter()
-
-        result = date_filter_result.values(
-            'att_subscription_id',
-            'sprint_subscription_id',
-            day=TruncDay('usage_date', output_field=DateField()),
-        ).annotate(
-            att_count=Count('att_subscription_id'),
-            sprint_count=Count('sprint_subscription_id'),
-            total_price=Sum('price'),
-            total_used=Sum(used_field),
-        )
-        return result
-
-    def create_bulk(self, queryset, type):
-        """
-        Create BothUsageRecord using .bulk_create(). Divided data by subscription_id
-        """
-        data_objects = []
-        for row in queryset:
-            if row.get('att_subscription_id'):
-                obj = BothUsageRecord(type_of_usage=type, subscription_id=row['att_subscription_id'],
-                                      price=row['total_price'], usage_date=row['day'],
-                                      used=row['total_used'], type_of_subscription='att')
-            else:
-                obj = BothUsageRecord(type_of_usage=type, subscription_id=row['sprint_subscription_id'],
-                                      price=row['total_price'], usage_date=row['day'],
-                                      used=row['total_used'], type_of_subscription='sprint')
-            data_objects.append(obj)
-
-        BothUsageRecord.objects.bulk_create(data_objects)
-
-
-class SubscriptionExceededPrice(APIView):
-
-    def get(self, request, *args, **kwargs):
-        try:
-            price_limit = int(request.GET.get('price_limit'))
-        except (ValueError, TypeError):
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        # check sub_type
-        sub_type = request.GET.get('sub_type')
-        sub_type_exist = BothUsageRecord.check_sub_type(sub_type)
-
-        if not price_limit or not sub_type_exist:
-            return Response("You must provide price_limit and sub_type(att, sprint) parameters",
-                            status=status.HTTP_404_NOT_FOUND)
-
-        result = self.aggregate(price_limit, sub_type)
-        return Response(result)
-
-    def aggregate(self, price_limit: int, sub_type: str):
+    def get_queryset(self):
         """
         Group by type_of_usage and subscription_id. Calculate price exceeded from given price_limit
         """
-        result = BothUsageRecord.objects.filter(type_of_subscription=sub_type).values(
+        try:
+            price_limit = int(self.request.query_params.get('price_limit'))
+        except (ValueError, TypeError):
+            raise ValidationError(detail={'price_limit': ['This field must be an positive integer value.']})
+
+        if price_limit <=0:
+            raise ValidationError(detail={'price_limit': ['This field must be an positive integer value.']})
+
+        result = BothUsageRecord.objects.filter().values(
             'type_of_usage',
             'subscription_id'
         ).annotate(
@@ -120,7 +45,6 @@ class SubscriptionExceededPrice(APIView):
             'subscription_id',
             'price_exceeded',
         )
-
         return result
 
 

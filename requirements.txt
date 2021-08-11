@@ -8,3 +8,6 @@ psycopg2-binary==2.8.4
 # debug
 django-debug-toolbar
 coverage
+
+# filter
+django-filter

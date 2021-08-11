@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'wingtel.sprint_subscriptions.apps.SprintSubscriptionsConfig',
     'wingtel.usage.apps.UsageConfig',
     'debug_toolbar',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# REST
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
