@@ -8,6 +8,7 @@ from wingtel.usage.tests.fill_models import fill_models, create_subscriptions
 
 
 class TestAggregateDataView(TestCase):
+
     @classmethod
     def setUpTestData(cls):
         """
