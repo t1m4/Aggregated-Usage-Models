@@ -37,7 +37,7 @@ class BothUsageRecord(models.Model):
     type_of_subscription = models.CharField(max_length=100, choices=SUBSCRIPTION_TYPE)
     subscription_id = models.IntegerField()
     type_of_usage = models.CharField(max_length=100, choices=USAGE_TYPES)
-    price = models.DecimalField(decimal_places=2, max_digits=7, default=0)
+    price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     usage_date = models.DateField(null=False)
     used = models.IntegerField(null=False)
 
@@ -52,3 +52,15 @@ class BothUsageRecord(models.Model):
                 sub_type_exist = True
                 break
         return sub_type_exist
+
+    @classmethod
+    def check_usage_type(cls, type):
+        """
+        Check subscription_type
+        """
+        usage_type_exist = False
+        for usage_type in cls.USAGE_TYPES:
+            if type == usage_type[0]:
+                usage_type_exist = True
+                break
+        return usage_type_exist
