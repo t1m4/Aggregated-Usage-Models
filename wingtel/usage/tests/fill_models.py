@@ -15,7 +15,7 @@ def read_file(filename):
     return result
 
 
-def fill_models(count: int = 0):
+def fill_models(id):
     """
     Create objects from fixtures.json
     """
@@ -24,7 +24,10 @@ def fill_models(count: int = 0):
     data_objects = []
     voice_objects = []
     # In different tests class ATTSubscription pk will be increase automatically
-    multiply = count * 4
+    # 4, 8, 12, 16
+    # 0, 1, 2, 3
+    # multiply = count * 4
+    multiply = (id / 4 - 1) * 4
 
     k = 0
     for i in data:

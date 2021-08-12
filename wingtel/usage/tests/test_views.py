@@ -3,8 +3,10 @@ from django.test import TestCase
 # Create your tests here.
 from django.urls import reverse
 
+from wingtel.att_subscriptions.models import ATTSubscription
+from wingtel.sprint_subscriptions.models import SprintSubscription
 from wingtel.usage.models import BothUsageRecord
-from wingtel.usage.tests.fill_models import fill_models, create_subscriptions
+from wingtel.usage.tests.fill_models import fill_models, create_subscriptions, create_subscription
 
 
 class TestSubscriptionExceededPrice(TestCase):
@@ -16,8 +18,9 @@ class TestSubscriptionExceededPrice(TestCase):
         cls.price_limit_url = reverse('usage-price_limit')
         cls.params = {'price_limit': 1000, 'type_of_subscription': 'att', 'type_of_usage': 'data'}
         user = User.objects.create(username='test', password='test')
-        create_subscriptions(user, count=4)
-        fill_models(count=2)
+        cls.att_subscriptions = create_subscription(user, ATTSubscription, 4)
+        cls.sprint_subscriptions = create_subscription(user, SprintSubscription, 4)
+        fill_models(cls.att_subscriptions[-1].id)
 
     def test_cannot_get_without_params(self):
         response = self.client.get(self.price_limit_url)
@@ -41,7 +44,7 @@ class TestSubscriptionExceededPrice(TestCase):
         response = self.client.get(self.price_limit_url, params)
         assert response.status_code == 400
 
-    def test_cannot_get_with_invalid_sub_type(self):
+    def test_cannot_get_with_invalid_type_of_subscription(self):
         params = self.params.copy()
         params['type_of_subscription'] = 'invalid'
         response = self.client.get(self.price_limit_url, params)
@@ -62,7 +65,7 @@ class TestSubscriptionExceededPrice(TestCase):
         assert response.status_code == 200
         assert len(response.json()) == 4
 
-    def test_can_get_with_sub_type_sprint(self):
+    def test_can_get_with_type_of_subscription_sprint(self):
         params = self.params.copy()
         params['type_of_subscription'] = 'sprint'
         response = self.client.get(self.price_limit_url, self.params)
@@ -78,9 +81,10 @@ class TestUsageMetrics(TestCase):
         """
         cls.usage_metrics_url = reverse('usage-metrics', args=[15])
         user = User.objects.create(username='test', password='test')
-        create_subscriptions(user)
-        fill_models(count=3)
-        # fill_models()
+        cls.att_subscriptions = create_subscription(user, ATTSubscription, 4)
+        cls.sprint_subscriptions = create_subscription(user, SprintSubscription, 4)
+        fill_models(cls.att_subscriptions[-1].id)
+
 
     def setUp(self):
         self.params = {'usage_date__gte': '2019-1-1', 'usage_date__lte': '2019-1-2', 'type_of_usage': 'data',
