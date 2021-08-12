@@ -5,8 +5,7 @@ from django.urls import reverse
 
 from wingtel.att_subscriptions.models import ATTSubscription
 from wingtel.sprint_subscriptions.models import SprintSubscription
-from wingtel.usage.models import BothUsageRecord
-from wingtel.usage.tests.fill_models import fill_models, create_subscriptions, create_subscription
+from wingtel.usage.tests.fill_models import fill_models, create_subscription
 
 
 class TestSubscriptionExceededPrice(TestCase):
@@ -84,7 +83,6 @@ class TestUsageMetrics(TestCase):
         cls.att_subscriptions = create_subscription(user, ATTSubscription, 4)
         cls.sprint_subscriptions = create_subscription(user, SprintSubscription, 4)
         fill_models(cls.att_subscriptions[-1].id)
-
 
     def setUp(self):
         self.params = {'usage_date__gte': '2019-1-1', 'usage_date__lte': '2019-1-2', 'type_of_usage': 'data',
