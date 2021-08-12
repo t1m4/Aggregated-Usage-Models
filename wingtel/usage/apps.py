@@ -6,5 +6,4 @@ class UsageConfig(AppConfig):
     label = 'usage'
 
     def ready(self):
-        from wingtel.usage.signals import ready
-        ready()
+        import wingtel.usage.signals

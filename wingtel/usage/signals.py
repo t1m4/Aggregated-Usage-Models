@@ -70,8 +70,3 @@ def get_used_field(instance, type: str):
     else:
         used_field = instance.seconds_used
     return used_field
-
-
-def ready():
-    post_save.connect(date_usage_handler, sender=DataUsageRecord, dispatch_uid='data_usage_handler')
-    post_save.connect(voice_usage_handler, sender=VoiceUsageRecord, dispatch_uid='voice_usage_handler')
