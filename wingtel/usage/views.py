@@ -11,7 +11,6 @@ from wingtel.usage.serializers import ExceededPriceSerializer, UsageMetricsSeril
 
 class SubscriptionExceededPrice(generics.ListAPIView):
     serializer_class = ExceededPriceSerializer
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['subscription_id', 'type_of_usage', 'type_of_subscription']
 
     def get_queryset(self):
@@ -45,7 +44,6 @@ class SubscriptionExceededPrice(generics.ListAPIView):
 
 class UsageMetricsGenericsView(generics.ListAPIView):
     serializer_class = UsageMetricsSerilizer
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = {'subscription_id': ['exact'], 'type_of_usage': ['exact'], 'type_of_subscription': ['exact'],
                         'usage_date': ['gte', 'lte']}
 
