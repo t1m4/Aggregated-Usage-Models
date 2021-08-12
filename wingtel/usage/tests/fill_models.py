@@ -64,3 +64,11 @@ def create_subscriptions(user, count: int = 4):
 
     ATTSubscription.objects.bulk_create(att_objects)
     SprintSubscription.objects.bulk_create(sprint_objects)
+
+def create_subscription(user, subscription_class, count: int = 4):
+    objects = []
+    for index in range(count):
+        objects.append(subscription_class(device_id=index, user=user))
+
+    subscription_class.objects.bulk_create(objects)
+    return objects
