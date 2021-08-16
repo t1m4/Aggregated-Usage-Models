@@ -6,7 +6,7 @@ from rest_framework import generics
 from rest_framework.exceptions import ValidationError
 
 from wingtel.usage.models import BothUsageRecord
-from wingtel.usage.serializers import ExceededPriceSerializer, UsageMetricsSerilizer
+from wingtel.usage.serializers import ExceededPriceSerializer, UsageMetricsSerilizer, PriceLimitDeserializer
 
 
 class SubscriptionExceededPrice(generics.ListAPIView):
@@ -17,13 +17,9 @@ class SubscriptionExceededPrice(generics.ListAPIView):
         """
         Group by type_of_usage and subscription_id. Calculate price exceeded from given price_limit
         """
-        try:
-            price_limit = int(self.request.query_params.get('price_limit'))
-        except (ValueError, TypeError):
-            raise ValidationError(detail={'price_limit': ['This field must be an positive integer value.']})
-
-        if price_limit <= 0:
-            raise ValidationError(detail={'price_limit': ['This field must be an positive integer value.']})
+        serializer = PriceLimitDeserializer(data={'price_limit': self.request.query_params.get('price_limit')})
+        serializer.is_valid(raise_exception=True)
+        price_limit = serializer.validated_data['price_limit']
 
         queryset = BothUsageRecord.objects.filter().values(
             'type_of_usage',
