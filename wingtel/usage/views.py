@@ -1,16 +1,14 @@
 # Create your views here.
 
-import django_filters
 from django.db.models import Sum
 from rest_framework import generics
-from rest_framework.exceptions import ValidationError
 
 from wingtel.usage.models import BothUsageRecord
-from wingtel.usage.serializers import ExceededPriceSerializer, UsageMetricsSerilizer, PriceLimitDeserializer
+from wingtel.usage.serializers import PriceLimitSerializer, SubscriptionUsageMetricsSerializer, PriceLimitDeserializer
 
 
-class SubscriptionExceededPrice(generics.ListAPIView):
-    serializer_class = ExceededPriceSerializer
+class SubscriptionPriceLimit(generics.ListAPIView):
+    serializer_class = PriceLimitSerializer
     filterset_fields = ['subscription_id', 'type_of_usage', 'type_of_subscription']
 
     def get_queryset(self):
@@ -38,8 +36,8 @@ class SubscriptionExceededPrice(generics.ListAPIView):
         return queryset
 
 
-class UsageMetricsGenericsView(generics.ListAPIView):
-    serializer_class = UsageMetricsSerilizer
+class SubscriptionUsageMetrics(generics.ListAPIView):
+    serializer_class = SubscriptionUsageMetricsSerializer
     filterset_fields = {'subscription_id': ['exact'], 'type_of_usage': ['exact'], 'type_of_subscription': ['exact'],
                         'usage_date': ['gte', 'lte']}
 

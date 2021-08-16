@@ -8,7 +8,7 @@ from wingtel.sprint_subscriptions.models import SprintSubscription
 from wingtel.usage.tests.fill_models import fill_models, create_subscription
 
 
-class TestSubscriptionExceededPrice(TestCase):
+class TestSubscriptionPriceLimit(TestCase):
     @classmethod
     def setUpTestData(cls):
         """
@@ -72,7 +72,7 @@ class TestSubscriptionExceededPrice(TestCase):
         assert len(response.json()) == 4
 
 
-class TestUsageMetrics(TestCase):
+class TestSubscriptionUsageMetrics(TestCase):
     @classmethod
     def setUpTestData(cls):
         """
