@@ -2,11 +2,18 @@
 
 from django.db.models import Sum
 from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from wingtel.usage.models import BothUsageRecord
 from wingtel.usage.serializers import PriceLimitSerializer, SubscriptionUsageMetricsSerializer, PriceLimitDeserializer
+from wingtel.usage.tests.fill_models import fill_models
 
 
+class Test(APIView):
+    def get(self, request, *args, **kwargs):
+        fill_models(4)
+        return Response('ok')
 class SubscriptionPriceLimit(generics.ListAPIView):
     serializer_class = PriceLimitSerializer
     filterset_fields = ['subscription_id', 'type_of_usage', 'type_of_subscription']

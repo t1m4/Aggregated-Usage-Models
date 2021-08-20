@@ -3,9 +3,8 @@ from datetime import datetime
 
 from django.utils.timezone import make_aware
 
-from wingtel.att_subscriptions.models import ATTSubscription
+from wingtel.att_subscriptions.models import Subscription
 from wingtel.settings import BASE_DIR
-from wingtel.sprint_subscriptions.models import SprintSubscription
 from wingtel.usage.models import VoiceUsageRecord, DataUsageRecord
 
 
@@ -31,26 +30,22 @@ def fill_models(id):
 
     k = 0
     for i in data:
-        if k > 100 and k < 2000 or k > 2100 and k < 4000:
-            k += 1
-            continue
-
+        # if k > 100 and k < 2000 or k > 2100 and k < 4000:
+        #     k += 1
+        #     continue
+        if k % 100 == 0:
+            print(k)
         # use each time different subscription
-        if k % 2 == 0:
-            subscription = {
-                'att_subscription_id': ATTSubscription.objects.get(pk=i['fields']['subscription'] + multiply)}
-        else:
-            subscription = {
-                'sprint_subscription_id': SprintSubscription.objects.get(pk=i['fields']['subscription'] + multiply)}
-        usage_date = make_aware(datetime.strptime(i['fields']['usage_date'], "%Y-%m-%dT%H:%M:%S.%fZ"))
-
+        fields = {
+            'subscription_id': Subscription.objects.get(pk=i['fields']['subscription'] + multiply),
+            'usage_date': make_aware(datetime.strptime(i['fields']['usage_date'], "%Y-%m-%dT%H:%M:%S.%fZ")),
+            'price': int(float(i['fields']['price'])),
+        }
         if i.get('model') == 'usage.datausagerecord':
-            obj = DataUsageRecord.objects.create(**subscription, price=int(float(i['fields']['price'])),
-                                                 kilobytes_used=i['fields']['kilobytes_used'], usage_date=usage_date)
+            obj = DataUsageRecord.objects.create(**fields, kilobytes_used=i['fields']['kilobytes_used'])
             data_objects.append(obj)
         else:
-            obj = VoiceUsageRecord.objects.create(**subscription, price=int(float(i['fields']['price'])),
-                                                  seconds_used=i['fields']['seconds_used'], usage_date=usage_date)
+            obj = VoiceUsageRecord.objects.create(**fields, seconds_used=i['fields']['seconds_used'])
             voice_objects.append(obj)
         k += 1
 
@@ -67,6 +62,7 @@ def create_subscriptions(user, count: int = 4):
 
     ATTSubscription.objects.bulk_create(att_objects)
     SprintSubscription.objects.bulk_create(sprint_objects)
+
 
 def create_subscription(user, subscription_class, count: int = 4):
     objects = []

@@ -29,7 +29,7 @@ class BothUsageRecord(models.Model):
     )
 
     type_of_usage = models.CharField(max_length=100, choices=USAGE_TYPES)
-    subscription_id = models.IntegerField()
+    subscription_id = models.ForeignKey(Subscription, null=True, on_delete=models.PROTECT)
     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     usage_date = models.DateField(null=False)
     used = models.IntegerField(null=False)

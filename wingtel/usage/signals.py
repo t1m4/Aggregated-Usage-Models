@@ -23,18 +23,12 @@ def aggregate_object(instance, record_type: str):
     """
     # check exist entry with this params
 
-    if instance.att_subscription_id:
-        fields = {
-            'subscription_id': instance.att_subscription_id.id,
-            'type_of_subscription': 'att'
-        }
-    else:
-        fields = {
-            'subscription_id': instance.sprint_subscription_id.id,
-            'type_of_subscription': 'sprint'
-        }
-    fields['usage_date'] = instance.usage_date.date()
-    fields['type_of_usage'] = record_type
+
+    fields = {
+        'subscription_id': instance.subscription_id,
+        'usage_date': instance.usage_date.date(),
+        'type_of_usage': record_type
+    }
 
     record = get_object_or_none(BothUsageRecord, **fields)
     if record:
