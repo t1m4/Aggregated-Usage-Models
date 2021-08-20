@@ -47,7 +47,6 @@ def fill_models(id):
         k += 1
 
 
-
 def create_subscription(user, subscription_class, count: int = 4):
     objects = []
     for index in range(count):
