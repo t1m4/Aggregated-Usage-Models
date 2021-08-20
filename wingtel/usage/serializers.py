@@ -7,7 +7,6 @@ class PriceLimitSerializer(serializers.Serializer):
     subscription_id = serializers.IntegerField()
     price_exceeded = serializers.IntegerField()
     type_of_usage = serializers.ChoiceField(choices=BothUsageRecord.USAGE_TYPES)
-    type_of_subscription = serializers.ChoiceField(choices=BothUsageRecord.SUBSCRIPTION_TYPE)
 
 
 class PriceLimitDeserializer(serializers.Serializer):
