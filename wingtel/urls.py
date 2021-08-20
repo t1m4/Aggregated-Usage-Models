@@ -26,10 +26,10 @@ from wingtel.sprint_subscriptions.views import SprintSubscriptionViewSet
 
 router = routers.DefaultRouter()
 
-router.register(r'att_subscriptions', ATTSubscriptionViewSet)
+router.register(r'att_subscriptions', ATTSubscriptionViewSet, base_name='att')
 router.register(r'plans', PlanViewSet)
 router.register(r'purchases', PurchaseViewSet)
-router.register(r'sprint_subscriptions', SprintSubscriptionViewSet)
+router.register(r'sprint_subscriptions', SprintSubscriptionViewSet, base_name='sprint')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

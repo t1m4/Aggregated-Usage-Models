@@ -1,9 +1,10 @@
 from rest_framework import serializers
-from wingtel.sprint_subscriptions.models import SprintSubscription
+
+from wingtel.att_subscriptions.models import Subscription
 
 
 class SprintSubscriptionSerializer(serializers.ModelSerializer):
-
+    type_of_subscription = serializers.HiddenField(default=Subscription.SUBSCRIPTION_TYPE.sprint)
     class Meta:
-        model = SprintSubscription
-        fields = '__all__'
+        model = Subscription
+        exclude = ['network_type']

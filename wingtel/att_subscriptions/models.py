@@ -7,7 +7,7 @@ from model_utils import Choices
 from wingtel.plans.models import Plan
 
 
-class ATTSubscription(models.Model):
+class Subscription(models.Model):
     ONE_KILOBYTE_PRICE = Decimal('0.001')
     ONE_SECOND_PRICE = Decimal('0.001')
 
@@ -15,8 +15,14 @@ class ATTSubscription(models.Model):
     STATUS = Choices(
         ('new', 'New'),
         ('active', 'Active'),
+        ('suspended', 'Suspended'),
         ('expired', 'Expired'),
     )
+    SUBSCRIPTION_TYPE = Choices(
+        ('att', 'Att'),
+        ('sprint', 'Sprint'),
+    )
+    type_of_subscription = models.CharField(max_length=10, choices=SUBSCRIPTION_TYPE)
 
     user = models.ForeignKey(User, on_delete=models.PROTECT) # Owning user
 
@@ -27,6 +33,7 @@ class ATTSubscription(models.Model):
     phone_number = models.CharField(max_length=20, blank=True, default='')
     phone_model = models.CharField(max_length=128, blank=True, default='')
     network_type = models.CharField(max_length=5, blank=True, default='')
+    sprint_id = models.CharField(max_length=16, null=True)
 
     effective_date = models.DateTimeField(null=True)
 
