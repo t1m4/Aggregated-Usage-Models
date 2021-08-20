@@ -30,11 +30,9 @@ def fill_models(id):
 
     k = 0
     for i in data:
-        # if k > 100 and k < 2000 or k > 2100 and k < 4000:
-        #     k += 1
-        #     continue
-        if k % 100 == 0:
-            print(k)
+        if k > 100 and k < 2000 or k > 2100 and k < 4000:
+            k += 1
+            continue
         # use each time different subscription
         fields = {
             'subscription_id': Subscription.objects.get(pk=i['fields']['subscription'] + multiply),
@@ -49,19 +47,6 @@ def fill_models(id):
             voice_objects.append(obj)
         k += 1
 
-
-def create_subscriptions(user, count: int = 4):
-    """
-    Create each type subscription for user
-    """
-    att_objects = []
-    sprint_objects = []
-    for i in range(count):
-        att_objects.append(ATTSubscription(device_id=i, user=user))
-        sprint_objects.append(SprintSubscription(device_id=i, user=user))
-
-    ATTSubscription.objects.bulk_create(att_objects)
-    SprintSubscription.objects.bulk_create(sprint_objects)
 
 
 def create_subscription(user, subscription_class, count: int = 4):
