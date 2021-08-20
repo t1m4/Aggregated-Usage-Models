@@ -143,7 +143,7 @@ class TestUsageRecordModel:
         assert second_aggregate_object.used == second_object.__dict__.get(self.used)
 
 
-class TestDataUsageRecordModel(TestUsageRecordModel, TestCase):
+class TestDataUsageRecordModel(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -157,10 +157,19 @@ class TestDataUsageRecordModel(TestUsageRecordModel, TestCase):
             'kilobytes_used': 100,
         }
         cls.att_subscriptions = create_subscription(user, Subscription, 4)
-        cls.sprint_subscriptions = create_subscription(user, Subscription, 8)
+        cls.sprint_subscriptions = create_subscription(user, Subscription, 4)
         cls.model = DataUsageRecord
         cls.type_of_usage = 'data'
         cls.used = "kilobytes_used"
+
+    def test_can_create_aggregate_object(self):
+        object = self.model.objects.create(subscription_id=self.att_subscriptions[0],
+                                           **self.data_fields)
+        aggregate_object = get_object_or_none(BothUsageRecord, subscription_id=self.att_subscriptions[0],
+                                              usage_date=object.usage_date.date(), type_of_usage=self.type_of_usage)
+        assert aggregate_object
+        assert aggregate_object.price == object.price
+        assert aggregate_object.used == object.__dict__.get(self.used)
 
 
 class TestVoiceUsageRecordModel(TestUsageRecordModel, TestCase):
@@ -177,7 +186,7 @@ class TestVoiceUsageRecordModel(TestUsageRecordModel, TestCase):
             'seconds_used': 100,
         }
         cls.att_subscriptions = create_subscription(user, Subscription, 4)
-        cls.sprint_subscriptions = create_subscription(user, Subscription, 8)
+        cls.sprint_subscriptions = create_subscription(user, Subscription, 4)
         cls.model = VoiceUsageRecord
         cls.type_of_usage = 'voice'
         cls.used = "seconds_used"

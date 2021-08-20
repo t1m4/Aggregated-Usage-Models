@@ -22,7 +22,7 @@ def fill_models(id):
 
     data_objects = []
     voice_objects = []
-    # In different tests class ATTSubscription pk will be increase automatically
+    # In different tests class Subscription pk will be increase automatically
     # 4, 8, 12, 16
     # 0, 1, 2, 3
     # multiply = count * 4
@@ -33,7 +33,6 @@ def fill_models(id):
         if k > 100 and k < 2000 or k > 2100 and k < 4000:
             k += 1
             continue
-        # use each time different subscription
         fields = {
             'subscription_id': Subscription.objects.get(pk=i['fields']['subscription'] + multiply),
             'usage_date': make_aware(datetime.strptime(i['fields']['usage_date'], "%Y-%m-%dT%H:%M:%S.%fZ")),

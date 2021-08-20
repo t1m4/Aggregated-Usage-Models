@@ -12,11 +12,13 @@ from wingtel.usage.tests.fill_models import fill_models
 
 class Test(APIView):
     def get(self, request, *args, **kwargs):
-        fill_models(4)
+        # fill_models(4)
         return Response('ok')
+
+
 class SubscriptionPriceLimit(generics.ListAPIView):
     serializer_class = PriceLimitSerializer
-    filterset_fields = ['subscription_id', 'type_of_usage', 'type_of_subscription']
+    filterset_fields = ['subscription_id', 'type_of_usage']
 
     def get_queryset(self):
         """
@@ -36,7 +38,6 @@ class SubscriptionPriceLimit(generics.ListAPIView):
             total_price__gt=price_limit
         ).values(
             'type_of_usage',
-            'type_of_subscription',
             'subscription_id',
             'price_exceeded',
         )
@@ -45,8 +46,7 @@ class SubscriptionPriceLimit(generics.ListAPIView):
 
 class SubscriptionUsageMetrics(generics.ListAPIView):
     serializer_class = SubscriptionUsageMetricsSerializer
-    filterset_fields = {'subscription_id': ['exact'], 'type_of_usage': ['exact'], 'type_of_subscription': ['exact'],
-                        'usage_date': ['gte', 'lte']}
+    filterset_fields = {'type_of_usage': ['exact'], 'usage_date': ['gte', 'lte']}
 
     def get_queryset(self):
         id = self.kwargs['id']
