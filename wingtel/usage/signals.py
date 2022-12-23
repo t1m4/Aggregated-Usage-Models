@@ -1,66 +1,32 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
 
-from wingtel.usage.models import DataUsageRecord, BothUsageRecord, VoiceUsageRecord
-from wingtel.usage.utils import get_object_or_none
+from wingtel.usage.models import DataUsageRecord, UsageRecord, VoiceUsageRecord
+from wingtel.usage.services import (
+    CreateUpdateUsageRecordService,
+    DeleteUsageRecordService,
+)
 
 
-@receiver(post_save, sender=DataUsageRecord, dispatch_uid="data_usage_handler")
+@receiver(pre_save, sender=DataUsageRecord, dispatch_uid="data_usage_save_handler")
 def date_usage_handler(instance, **kwargs):
-    record_type = BothUsageRecord.USAGE_TYPES.data
-    aggregate_object(instance, record_type)
+    service = CreateUpdateUsageRecordService(instance, UsageRecord.USAGE_TYPES.data)
+    service.aggregate_object()
 
 
-@receiver(post_save, sender=VoiceUsageRecord, dispatch_uid="voice_usage_handler")
+@receiver(pre_save, sender=VoiceUsageRecord, dispatch_uid="voice_usage_save_handler")
 def voice_usage_handler(instance, **kwargs):
-    record_type = BothUsageRecord.USAGE_TYPES.voice
-    aggregate_object(instance, record_type)
+    service = CreateUpdateUsageRecordService(instance, UsageRecord.USAGE_TYPES.voice)
+    service.aggregate_object()
 
 
-def aggregate_object(instance, record_type: str):
-    """
-    Create/Update an aggregate object using new instance
-    """
-    # check exist entry with this params
+@receiver(pre_delete, sender=DataUsageRecord, dispatch_uid="data_usage_delete_handler")
+def date_usage_delete_handler(instance, **kwargs):
+    service = DeleteUsageRecordService(instance, UsageRecord.USAGE_TYPES.data)
+    service.modify_aggregated_object()
 
 
-    fields = {
-        'subscription_id': instance.subscription_id,
-        'usage_date': instance.usage_date.date(),
-        'type_of_usage': record_type
-    }
-
-    record = get_object_or_none(BothUsageRecord, **fields)
-    if record:
-        update_aggregate_object(record, instance, type=record_type)
-    else:
-        create_aggregate_object(instance, fields, type=record_type)
-
-
-def update_aggregate_object(old_object, instance, type: str):
-    """
-    Update price and used
-    """
-    used_field = get_used_field(instance, type)
-    old_object.price += instance.price
-    old_object.used += used_field
-    old_object.save(update_fields=['price', 'used'])
-
-
-def create_aggregate_object(instance, fields: dict, type: str):
-    """
-    Create new BothUsageRecord object
-    """
-    used_field = get_used_field(instance, type)
-    BothUsageRecord.objects.create(price=instance.price, used=used_field, **fields)
-
-
-def get_used_field(instance, type: str):
-    """
-    Choose used based on type
-    """
-    if type == BothUsageRecord.USAGE_TYPES.data:
-        used_field = instance.kilobytes_used
-    else:
-        used_field = instance.seconds_used
-    return used_field
+@receiver(pre_delete, sender=VoiceUsageRecord, dispatch_uid="voice_usage_delete_handler")
+def voice_usage_delete_handler(instance, **kwargs):
+    service = DeleteUsageRecordService(instance, UsageRecord.USAGE_TYPES.voice)
+    service.modify_aggregated_object()

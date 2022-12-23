@@ -8,5 +8,6 @@ class PurchaseViewSet(viewsets.ModelViewSet):
     """
     A viewset that provides `retrieve`, `create`, and `list` actions.
     """
+
     queryset = Purchase.objects.all()
     serializer_class = PurchaseSerializer

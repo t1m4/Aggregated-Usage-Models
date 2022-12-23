@@ -5,6 +5,7 @@ from wingtel.plans.serializers import PlanSerializer
 
 
 class PlanViewSet(viewsets.ReadOnlyModelViewSet):
+    # class PlanViewSet(viewsets.ModelViewSet):
     """
     A viewset that provides `retrieve`, `create`, and `list` actions.
     """

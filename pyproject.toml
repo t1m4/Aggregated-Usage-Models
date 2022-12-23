@@ -1,0 +1,34 @@
+[tool.black]
+line-length = 120
+target-version = ['py38']
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+exclude = 'migrations'
+strict = true
+# disable strict flags
+ignore_missing_imports = true
+disallow_subclassing_any = false
+warn_return_any = false
+ignore_errors = true
+
+
+[tool.coverage.report]
+omit = [
+    "*tests*",
+    "*/migrations/*",
+]
+
+[tool.autoflake]
+exclude = [
+    'migrations',
+    'manage.py',
+    'venv',
+    '.venv'
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "wingtel.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
