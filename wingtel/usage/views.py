@@ -20,7 +20,7 @@ class TestView(APIView):
 
 class UsageRecordPriceLimitView(generics.ListAPIView):
     serializer_class = UsageRecordExceedingPriceSerializer
-    filterset_fields = ["subscription_id", "type_of_usage"]
+    filterset_fields = ["subscription", "type_of_usage"]
 
     def get_queryset(self):
         """

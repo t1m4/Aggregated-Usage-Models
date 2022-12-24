@@ -25,7 +25,7 @@ class VoiceUsageRecordFactory(DjangoModelFactory):
 
 
 class UsageRecordFactory(DjangoModelFactory):
-    subscription_id = SubFactory(SubscriptionFactory)
+    subscription = SubFactory(SubscriptionFactory)
     type_of_usage = models.UsageRecord.USAGE_TYPES.data
     usage_date = fuzzy.FuzzyDateTime(datetime.datetime.now(tz=pytz.utc))
     used = fuzzy.FuzzyInteger(0, 1000)

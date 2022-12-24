@@ -20,7 +20,7 @@ class CreateUpdateUsageRecordService:
         """Create/Update an aggregate object using new instance"""
         fields = {
             "type_of_usage": self.record_type,
-            "subscription_id": self.new_instance.subscription_id,
+            "subscription": self.new_instance.subscription_id,
             "usage_date": self.new_instance.usage_date.date(),
         }
 
@@ -68,7 +68,7 @@ class DeleteUsageRecordService:
         """Delete from aggregated object"""
         fields = {
             "type_of_usage": self.record_type,
-            "subscription_id": self.instance.subscription_id,
+            "subscription": self.instance.subscription_id,
             "usage_date": self.instance.usage_date.date(),
         }
         aggregated_instance = get_object_or_none(UsageRecord, **fields)

@@ -74,14 +74,14 @@ def test_create_different_subscription_usage_records():
     second_subscription = SubscriptionFactory.create(user=first_subscription.user)
     first_record = DataUsageRecordFactory.create(subscription_id=first_subscription)
     second_record = DataUsageRecordFactory.create(subscription_id=second_subscription)
-    first_data_usage_record = models.UsageRecord.objects.filter(subscription_id=1).first()
-    second_data_usage_record = models.UsageRecord.objects.filter(subscription_id=2).first()
+    first_data_usage_record = models.UsageRecord.objects.filter(subscription=1).first()
+    second_data_usage_record = models.UsageRecord.objects.filter(subscription=2).first()
     assert first_data_usage_record
     assert second_data_usage_record
-    assert first_data_usage_record.subscription_id == first_record.subscription_id
+    assert first_data_usage_record.subscription == first_record.subscription_id
     assert first_data_usage_record.price == first_record.price
     assert first_data_usage_record.used == first_record.kilobytes_used
-    assert second_data_usage_record.subscription_id == second_record.subscription_id
+    assert second_data_usage_record.subscription == second_record.subscription_id
     assert second_data_usage_record.price == second_record.price
     assert second_data_usage_record.used == second_record.kilobytes_used
 
@@ -96,10 +96,10 @@ def test_create_different_usage_date_usage_records():
     second_data_usage_record = models.UsageRecord.objects.filter(usage_date=yesterday).first()
     assert first_data_usage_record
     assert second_data_usage_record
-    assert first_data_usage_record.subscription_id == first_record.subscription_id
+    assert first_data_usage_record.subscription == first_record.subscription_id
     assert first_data_usage_record.price == first_record.price
     assert first_data_usage_record.used == first_record.kilobytes_used
-    assert second_data_usage_record.subscription_id == second_record.subscription_id
+    assert second_data_usage_record.subscription == second_record.subscription_id
     assert second_data_usage_record.price == second_record.price
     assert second_data_usage_record.used == second_record.kilobytes_used
 
