@@ -19,21 +19,23 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework import routers
 
-from wingtel.att_subscriptions.views import ATTSubscriptionViewSet
 from wingtel.plans.views import PlanViewSet
 from wingtel.purchases.views import PurchaseViewSet
-from wingtel.sprint_subscriptions.views import SprintSubscriptionViewSet
+from wingtel.subscriptions.views import (
+    ATTSubscriptionViewSet,
+    SprintSubscriptionViewSet,
+)
 
 router = routers.DefaultRouter()
 
-router.register(r'att_subscriptions', ATTSubscriptionViewSet, base_name='att')
-router.register(r'plans', PlanViewSet)
-router.register(r'purchases', PurchaseViewSet)
-router.register(r'sprint_subscriptions', SprintSubscriptionViewSet, base_name='sprint')
+router.register(r"att_subscriptions", ATTSubscriptionViewSet, base_name="att")
+router.register(r"plans", PlanViewSet)
+router.register(r"purchases", PurchaseViewSet)
+router.register(r"sprint_subscriptions", SprintSubscriptionViewSet, base_name="sprint")
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    url(r'^api/', include((router.urls, 'api'), namespace='api')),
-    path('usage/', include('wingtel.usage.urls')),
-    path('__debug__/', include(debug_toolbar.urls)),
+    path("admin/", admin.site.urls),
+    url(r"^api/", include((router.urls, "api"), namespace="api")),
+    path("api/usage/", include("wingtel.usage.urls")),
+    path("__debug__/", include(debug_toolbar.urls)),
 ]

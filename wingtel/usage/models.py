@@ -1,13 +1,12 @@
 from django.db import models
 from model_utils import Choices
 
-# from wingtel.att_subscriptions.models import ATTSubscription
-# from wingtel.sprint_subscriptions.models import SprintSubscription
-from wingtel.att_subscriptions.models import Subscription
+from wingtel.subscriptions.models import Subscription
 
 
 class DataUsageRecord(models.Model):
     """Raw data usage record for a subscription"""
+
     subscription_id = models.ForeignKey(Subscription, null=True, on_delete=models.PROTECT)
     price = models.DecimalField(decimal_places=2, max_digits=5, default=0)
     usage_date = models.DateTimeField(null=False)
@@ -16,20 +15,24 @@ class DataUsageRecord(models.Model):
 
 class VoiceUsageRecord(models.Model):
     """Raw voice usage record for a subscription"""
+
     subscription_id = models.ForeignKey(Subscription, null=True, on_delete=models.PROTECT)
     price = models.DecimalField(decimal_places=2, max_digits=5, default=0)
     usage_date = models.DateTimeField(null=False)
     seconds_used = models.IntegerField(null=False)
 
 
-class BothUsageRecord(models.Model):
+class UsageRecord(models.Model):
+    """Aggregate representation for usage record"""
+
     USAGE_TYPES = Choices(
-        ('data', 'DataUsage'),
-        ('voice', 'VoiceUsage'),
+        ("data", "DataUsage"),
+        ("voice", "VoiceUsage"),
     )
 
-    type_of_usage = models.CharField(max_length=100, choices=USAGE_TYPES)
+    # TODO add indexes
+    type_of_usage = models.CharField(max_length=100, choices=USAGE_TYPES, db_index=True)
     subscription_id = models.ForeignKey(Subscription, null=True, on_delete=models.PROTECT)
     price = models.DecimalField(decimal_places=2, max_digits=10, default=0)
-    usage_date = models.DateField(null=False)
+    usage_date = models.DateField(null=False, db_index=True)
     used = models.IntegerField(null=False)
