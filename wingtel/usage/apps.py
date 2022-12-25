@@ -6,4 +6,4 @@ class UsageConfig(AppConfig):
     label = "usage"
 
     def ready(self):
-        import wingtel.usage.signals  # noqa
+        pass

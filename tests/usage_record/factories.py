@@ -9,7 +9,9 @@ from wingtel.usage import models
 
 
 class DataUsageRecordFactory(DjangoModelFactory):
+    subscription_id = SubFactory(SubscriptionFactory)
     usage_date = fuzzy.FuzzyDateTime(datetime.datetime.now(tz=pytz.utc))
+    price = fuzzy.FuzzyInteger(0, 1000)
     kilobytes_used = fuzzy.FuzzyInteger(0, 1000)
 
     class Meta:
@@ -17,7 +19,9 @@ class DataUsageRecordFactory(DjangoModelFactory):
 
 
 class VoiceUsageRecordFactory(DjangoModelFactory):
+    subscription_id = SubFactory(SubscriptionFactory)
     usage_date = fuzzy.FuzzyDateTime(datetime.datetime.now(tz=pytz.utc))
+    price = fuzzy.FuzzyInteger(0, 1000)
     seconds_used = fuzzy.FuzzyInteger(0, 1000)
 
     class Meta:
@@ -28,6 +32,7 @@ class UsageRecordFactory(DjangoModelFactory):
     subscription = SubFactory(SubscriptionFactory)
     type_of_usage = models.UsageRecord.USAGE_TYPES.data
     usage_date = fuzzy.FuzzyDateTime(datetime.datetime.now(tz=pytz.utc))
+    price = fuzzy.FuzzyInteger(0, 1000)
     used = fuzzy.FuzzyInteger(0, 1000)
 
     class Meta:
