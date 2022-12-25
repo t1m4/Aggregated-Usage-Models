@@ -36,4 +36,4 @@ class UsageRecordFactory(DjangoModelFactory):
     used = fuzzy.FuzzyInteger(0, 1000)
 
     class Meta:
-        model = models.UsageRecord
+        model = models.UsageRecordView
