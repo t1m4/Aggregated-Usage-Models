@@ -45,7 +45,6 @@ There are two way to do it.
 ## Tools
 
 - Django and DRF 
-- Celery and Redis
 - pytest
 - PostgreSQL triggers, procedures, functions and views using Django ORM
 
@@ -64,17 +63,6 @@ where we store aggregated results from both tables
 
 ## Performance check.
 Obviously PostgreSQL triggers, functions and views will work faster than Django signals. But it take more amount of time to write in SQL language properly, but it's worth it.
-
-My opinion is the best solution depends on what are business requirements. Each solution has advantages and disadvantages. 
-Statistic. 
-1. 100 elements
-    - ORM signal create = 5.8 seconds. ORM signal delete = 3.8 seconds
-    - SQL trigger creat = 1.7 seconds. SQL trigge delete = 0.04 seconds
-    - SQL view take 167-224 mc to load.
-2. 1000 elements
-    - ORM signal create = 55 seconds. ORM signal delete = 40 seconds
-    - SQL trigger creat = 15 seconds. SQL trigge delete = 0.04 seconds
-    - SQL view take 167-224 mc to load.
 ## WIP
 
 1. Sql triggers. Write better solutions with small functions. Check performance. 
