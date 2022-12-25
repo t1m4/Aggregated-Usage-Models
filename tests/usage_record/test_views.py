@@ -51,18 +51,18 @@ class TestUsageRecordPriceLimitView:
 class TestUsageRecordTotalMetricsView:
     def test_view_with_empty_response(self, api_client):
         usage_record = UsageRecordFactory.create()
-        usage_metrics_url = reverse("usage-metrics", kwargs={"subscription_id": usage_record.subscription_id.id + 1})
+        usage_metrics_url = reverse("usage-metrics", kwargs={"subscription_id": usage_record.subscription_id + 1})
         response = api_client.get(usage_metrics_url)
         response_json = response.json()
         assert response_json == []
 
     def test_view_with_two_response(self, api_client):
         usage_record = UsageRecordFactory.create()
-        usage_metrics_url = reverse("usage-metrics", kwargs={"subscription_id": usage_record.subscription_id.id})
+        usage_metrics_url = reverse("usage-metrics", kwargs={"subscription_id": usage_record.subscription_id})
         response = api_client.get(usage_metrics_url)
         response_json = response.json()
         assert len(response_json) == 1
         record = response_json[0]
-        assert record["subscription_id"] == usage_record.subscription_id.id
+        assert record["subscription_id"] == usage_record.subscription_id
         assert record["total_price"] == usage_record.price
         assert record["total_used"] == usage_record.used

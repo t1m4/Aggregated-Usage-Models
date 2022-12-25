@@ -17,7 +17,7 @@ def add_usage_records(apps, *args):
     for record in instances:
         usage_record = UsageRecord(
             type_of_usage=record["type_of_usage"],
-            subscription_id_id=record["subscription_id"],
+            subscription_id=record["subscription_id"],
             price=record["total_price"],
             usage_date=record["usage_date__date"],
             used=record["total_used"],
