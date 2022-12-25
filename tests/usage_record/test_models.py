@@ -107,8 +107,8 @@ def test_create_different_usage_date_usage_records():
 @pytest.mark.parametrize(
     "record_type,factory_record_class,price_update,used_update",
     [
-        (models.UsageRecord.USAGE_TYPES.data, DataUsageRecordFactory, 100, 100),
-        (models.UsageRecord.USAGE_TYPES.voice, VoiceUsageRecordFactory, 100, 100),
+        (models.UsageRecord.USAGE_TYPES.data, DataUsageRecordFactory, -100, 100),
+        (models.UsageRecord.USAGE_TYPES.voice, VoiceUsageRecordFactory, -100, -100),
     ],
 )
 def test_update_one_usage_record(record_type: str, factory_record_class, price_update: int, used_update: int):
